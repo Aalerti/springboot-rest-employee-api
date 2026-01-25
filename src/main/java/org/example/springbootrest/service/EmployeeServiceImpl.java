@@ -1,6 +1,6 @@
 package org.example.springbootrest.service;
 
-import org.example.springbootrest.dao.EmployeeDAO;
+import org.example.springbootrest.dao.EmployeeRepository;
 import org.example.springbootrest.dto.EmployeeDTO;
 import org.example.springbootrest.entity.Employee;
 import org.example.springbootrest.exception_handling.NoSuchEmployeeException;
@@ -10,34 +10,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements  EmployeeService {
 
-    private final EmployeeDAO employeeDAO;
+    private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
 
     @Autowired
-    public EmployeeServiceImpl(EmployeeDAO employeeDao, EmployeeMapper employeeMapper) {
-        this.employeeDAO = employeeDao;
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
+        this.employeeRepository = employeeRepository;
         this.employeeMapper = employeeMapper;
     }
 
     @Override
-    @Transactional
     public List<EmployeeDTO> findAllEmployees() {
-        List<Employee> employees = employeeDAO.findAllEmployees();
-        if (employees == null ||  employees.isEmpty()) {
-            throw new NoSuchEmployeeException("No employees found");
-        }
+        List<Employee> employees = employeeRepository.findAll();
         return employeeMapper.toEmployeeDTOList(employees);
     }
 
     @Override
-    @Transactional
     public EmployeeDTO findEmployeeById(long id) {
-        Employee employee = employeeDAO.findEmployeeById(id);
-        if (employee == null) throw new NoSuchEmployeeException("No employee found");
+        Optional<Employee> optional = employeeRepository.findById(id);
+        Employee employee = optional.orElseThrow(() -> new NoSuchEmployeeException("No employee with id " + id));
         return employeeMapper.toEmployeeDTO(employee);
     }
 
@@ -45,15 +41,15 @@ public class EmployeeServiceImpl implements  EmployeeService {
     @Transactional
     public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
         Employee employee = employeeMapper.toEmployeeEntity(employeeDTO);
-        Employee savedEmployee = employeeDAO.saveEmployee(employee);
+        Employee savedEmployee = employeeRepository.save(employee);
         return employeeMapper.toEmployeeDTO(savedEmployee);
     }
 
     @Override
     @Transactional
     public void deleteEmployeeById(long id) {
-        Employee employee = employeeDAO.findEmployeeById(id);
-        if (employee == null) throw new NoSuchEmployeeException("No employee found");
-        employeeDAO.deleteEmployeeById(id);
+        Optional<Employee> optional = employeeRepository.findById(id);
+        Employee employee =  optional.orElseThrow(() -> new NoSuchEmployeeException("No employee with id " + id));
+        employeeRepository.deleteById(id);
     }
 }
