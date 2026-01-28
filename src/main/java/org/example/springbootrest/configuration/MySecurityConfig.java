@@ -26,6 +26,7 @@ public class MySecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/employees/**").hasAnyRole("EMPLOYEE", "HR") // Для роли HR это тоже сработает? (Обычно да, но проверим)
                         .requestMatchers(HttpMethod.POST, "/api/employees").hasRole("HR")
                         .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasRole("HR")
