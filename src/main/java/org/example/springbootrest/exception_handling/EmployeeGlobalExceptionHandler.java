@@ -20,6 +20,14 @@ public class EmployeeGlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<UserIncorrectData> handleUserExistsWithThatUsername(UserExistsWithThatUsername e) {
+        UserIncorrectData userIncorrectData = new UserIncorrectData();
+        userIncorrectData.setInfo(e.getMessage());
+
+        return new ResponseEntity<>(userIncorrectData, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(error ->

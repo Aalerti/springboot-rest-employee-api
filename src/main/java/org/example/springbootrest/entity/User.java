@@ -14,20 +14,22 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", unique = true) // Логин должен быть уникальным
+    @Column(name = "username", unique = true)
     private String username;
 
-    @Column(name = "password") // Тут будет храниться ХЕШ пароля, а не сам пароль
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "role") // Для простоты будем хранить роль одной строкой (например, "ROLE_HR")
+    @Column(name = "role")
     private String role;
 
-    // Поле enabled нужно Спрингу, чтобы знать, не забанен ли пользователь
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    // Конструктор для удобства создания
+    @OneToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
     public User(String username, String password, String role) {
         this.username = username;
         this.password = password;
